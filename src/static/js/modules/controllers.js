@@ -1,11 +1,11 @@
 /**
  * [CONTROLLERS]: Business Logic
  */
-import * as API from './api.js?v=21';
-import * as UI from './ui.js?v=21';
-import * as Wallet from './wallet.js?v=21';
-import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=21';
-import { ROLES, ESCROW_ADDRESS } from './config.js?v=21';
+import * as API from './api.js?v=23';
+import * as UI from './ui.js?v=23';
+import * as Wallet from './wallet.js?v=23';
+import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=23';
+import { ROLES, ESCROW_ADDRESS } from './config.js?v=23';
 
 const tg = getTg();
 
@@ -159,6 +159,9 @@ export async function handleBuyAd(channel) {
 // --- Loaders ---
 
 export async function loadChannels(container) {
+    // [POLLING]: Stop any active Deals polling to prevent view conflict
+    if (dealsPollingInterval) clearInterval(dealsPollingInterval);
+
     container.innerHTML = '<div class="state-message">Loading marketplace...</div>';
     try {
         const channels = await API.fetchChannels();
@@ -177,6 +180,9 @@ export async function loadChannels(container) {
 }
 
 export async function loadMyChannels(container) {
+    // [POLLING]: Stop any active Deals polling
+    if (dealsPollingInterval) clearInterval(dealsPollingInterval);
+
     const userId = getUserId();
     if (!userId) {
         // [FIX P0]: Restored error handling with debug info
@@ -209,48 +215,55 @@ export async function loadMyChannels(container) {
     }
 }
 
-// [POLLING]: State for auto-refresh
+// [POLLING]: Removed in favor of Manual Refresh for stability
 let dealsPollingInterval = null;
 
-export async function loadUserDeals(container, role, isSilent = false) {
+export async function loadUserDeals(container, role) {
     const userId = getUserId();
     if (!userId) return;
 
-    // Clear previous interval if this is a fresh load (not a silent refresh)
-    // allowing the interval to "survive" its own recursive call would be wrong if we want strict control,
-    // but here we want to RESET it on every manual tab switch, and maintain it on recursive calls.
-    // simpler: valid polling is linked to the container lifecycle.
-    
-    if (!isSilent) {
-        if (dealsPollingInterval) clearInterval(dealsPollingInterval);
-        container.innerHTML = '<div class="state-message">Syncing deals...</div>';
-    } 
+    // Clear any residual interval just in case
+    if (dealsPollingInterval) {
+        clearInterval(dealsPollingInterval);
+        dealsPollingInterval = null;
+    }
+
+    container.innerHTML = '<div class="state-message">Syncing deals...</div>';
     
     try {
         const allDeals = await API.fetchUserDeals(userId);
         const filtered = allDeals.filter(d => d.user_role === role);
         
-        // [POLLING]: Setup new interval if not already running or if we just cleared it
-        if (!isSilent) {
-             dealsPollingInterval = setInterval(() => {
-                if (document.body.contains(container) && container.style.display !== 'none') {
-                    loadUserDeals(container, role, true);
-                } else {
-                    clearInterval(dealsPollingInterval);
-                }
-            }, 5000); 
-        }
-
-        if (!isSilent) container.innerHTML = '';
+        container.innerHTML = '';
         
+        // [UX]: Manual Refresh Button
+        const controls = document.createElement('div');
+        controls.className = 'controls-bar';
+        controls.style.cssText = "display:flex; justify-content:flex-end; padding:10px; margin-bottom:10px;";
+        
+        const refreshBtn = document.createElement('button');
+        refreshBtn.innerText = "🔄 Refresh";
+        refreshBtn.className = "btn-secondary"; // Re-use existing style or add new
+        refreshBtn.style.cssText = "padding: 5px 10px; font-size: 12px; border-radius: 8px; background: rgba(255,255,255,0.1); color: var(--text-color); border: 1px solid rgba(255,255,255,0.2); cursor: pointer;";
+        
+        refreshBtn.onclick = () => {
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
+            loadUserDeals(container, role);
+        };
+        
+        controls.appendChild(refreshBtn);
+        container.appendChild(controls);
+
         if (filtered.length === 0) {
-            container.innerHTML = `<div class="state-message">No deals found.</div>`;
+            const emptyMsg = document.createElement('div');
+            emptyMsg.className = 'state-message';
+            emptyMsg.innerText = 'No deals found.';
+            container.appendChild(emptyMsg);
             return;
         }
 
-        // Use a wrapper to build content off-DOM then swap (reduces flicker)
-        const listWrapper = document.createElement('div');
-        
         const isAdvertiser = role === ROLES.ADVERTISER;
         filtered.forEach(deal => {
             const card = UI.renderDealCard(deal, isAdvertiser, {
@@ -316,15 +329,12 @@ export async function loadUserDeals(container, role, isSilent = false) {
                     loadUserDeals(container, role);
                 }
             });
-            listWrapper.appendChild(card);
+            });
+            container.appendChild(card);
         });
 
-        // [UX]: Swap content instantly
-        container.innerHTML = '';
-        container.appendChild(listWrapper);
-
     } catch (e) {
-        if (!isSilent) container.innerHTML = `<div class="state-message">Error loading deals.</div>`;
+        container.innerHTML = `<div class="state-message">Error loading deals.</div>`;
     }
 }
 

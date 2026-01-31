@@ -1,12 +1,12 @@
 /**
  * [MAIN]: Application Entry Point
  */
-import { getTg, getUserId, forceSetId, safeAlert } from './auth.js?v=21';
-import { UI, ROLES } from './config.js?v=21';
-import * as Controllers from './controllers.js?v=21';
-import { initWallet, isWalletConnected, requireWallet, getWalletAddress } from './wallet.js?v=21';
-import { saveRole } from './api.js?v=21';
-import './debug.js?v=21'; // [DEMO] Hidden debug panel (Ctrl+Shift+D)
+import { getTg, getUserId, forceSetId, safeAlert } from './auth.js?v=23';
+import { UI, ROLES } from './config.js?v=23';
+import * as Controllers from './controllers.js?v=23';
+import { initWallet, isWalletConnected, requireWallet, getWalletAddress } from './wallet.js?v=23';
+import { saveRole } from './api.js?v=23';
+import './debug.js?v=23'; // [DEMO] Hidden debug panel (Ctrl+Shift+D)
 
 const tg = getTg();
 tg.expand();
