@@ -1,11 +1,11 @@
 /**
  * [CONTROLLERS]: Business Logic
  */
-import * as API from './api.js?v=12';
-import * as UI from './ui.js?v=12';
-import * as Wallet from './wallet.js?v=12';
-import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=12';
-import { ROLES, ESCROW_ADDRESS } from './config.js?v=12';
+import * as API from './api.js?v=14';
+import * as UI from './ui.js?v=14';
+import * as Wallet from './wallet.js?v=14';
+import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=14';
+import { ROLES, ESCROW_ADDRESS } from './config.js?v=14';
 
 const tg = getTg();
 
@@ -128,7 +128,7 @@ export async function handleBuyAd(channel) {
                     `💰 Amount: ${amount} TON (Locked)\n` +
                     `📍 Next: Owner accepts -> Auto Publish.`
                 );
-                document.querySelector('.tab[data-tab="deals"]').click();
+                document.querySelector('.tab[data-tab="deals"]')?.click();
                 
             } catch (txErr) {
                 hideProgress();
@@ -145,7 +145,7 @@ export async function handleBuyAd(channel) {
                         "If you confirmed in your wallet, the payment was likely successful.\n" +
                         "Check your Deals in a few moments."
                     );
-                    document.querySelector('.tab[data-tab="deals"]').click();
+                    document.querySelector('.tab[data-tab="deals"]')?.click();
                 }
             }
 
@@ -209,20 +209,44 @@ export async function loadMyChannels(container) {
     }
 }
 
-export async function loadUserDeals(container, role) {
+// [POLLING]: State for auto-refresh
+let dealsPollingInterval = null;
+
+export async function loadUserDeals(container, role, isSilent = false) {
     const userId = getUserId();
     if (!userId) return;
 
-    container.innerHTML = '<div class="state-message">Syncing deals...</div>';
+    // Clear previous interval to prevent duplicates
+    if (dealsPollingInterval) clearInterval(dealsPollingInterval);
+
+    if (!isSilent) {
+        container.innerHTML = '<div class="state-message">Syncing deals...</div>';
+    }
+    
     try {
         const allDeals = await API.fetchUserDeals(userId);
         const filtered = allDeals.filter(d => d.user_role === role);
         
-        container.innerHTML = '';
+        // [POLLING]: Restart interval
+        dealsPollingInterval = setInterval(() => {
+            // Only refresh if tab is still visible/active (simple check: container is in DOM)
+            if (document.body.contains(container)) {
+                loadUserDeals(container, role, true);
+            } else {
+                clearInterval(dealsPollingInterval);
+            }
+        }, 5000); // 5 seconds refresh
+
+        if (!isSilent) container.innerHTML = '';
+        
         if (filtered.length === 0) {
             container.innerHTML = `<div class="state-message">No deals found.</div>`;
             return;
         }
+
+        // Use a temporary container for silent updates to diff or just replace
+        const listWrapper = document.createElement('div');
+
 
         const isAdvertiser = role === ROLES.ADVERTISER;
         filtered.forEach(deal => {
@@ -289,10 +313,15 @@ export async function loadUserDeals(container, role) {
                     loadUserDeals(container, role);
                 }
             });
-            container.appendChild(card);
+            listWrapper.appendChild(card);
         });
+        
+        // [UX]: Swap content instantly
+        container.innerHTML = '';
+        container.appendChild(listWrapper);
+
     } catch (e) {
-        container.innerHTML = `<div class="state-message">Error loading deals.</div>`;
+        if (!isSilent) container.innerHTML = `<div class="state-message">Error loading deals.</div>`;
     }
 }
 
