@@ -21,6 +21,13 @@ export function getUserId() {
 
     // 3. Persistence (LocalStorage)
     let setID = localStorage.getItem('sim_user_id');
+    
+    // [FIX]: Force reset legacy default ID (99999) to ensure uniqueness
+    if (setID && parseInt(setID) === 99999) {
+        setID = null; // Treat as empty to trigger regeneration
+        localStorage.removeItem('sim_user_id');
+    }
+
     if (setID) return parseInt(setID);
 
     // 4. [DEV MODE]: Auto-fallback for browser testing

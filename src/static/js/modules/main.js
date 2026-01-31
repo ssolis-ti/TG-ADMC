@@ -1,23 +1,27 @@
 /**
  * [MAIN]: Application Entry Point
  */
-import { getTg, getUserId, forceSetId, safeAlert } from './auth.js?v=17';
-import { UI, ROLES } from './config.js?v=17';
-import * as Controllers from './controllers.js?v=17';
-import { initWallet, isWalletConnected, requireWallet, getWalletAddress } from './wallet.js?v=17';
-import { saveRole } from './api.js?v=17';
-import './debug.js?v=17'; // [DEMO] Hidden debug panel (Ctrl+Shift+D)
+import { getTg, getUserId, forceSetId, safeAlert } from './auth.js?v=18';
+import { UI, ROLES } from './config.js?v=18';
+import * as Controllers from './controllers.js?v=18';
+import { initWallet, isWalletConnected, requireWallet, getWalletAddress } from './wallet.js?v=18';
+import { saveRole } from './api.js?v=18';
+import './debug.js?v=18'; // [DEMO] Hidden debug panel (Ctrl+Shift+D)
 
 const tg = getTg();
 tg.expand();
 
-// State
-let currentRole = null;
-
-// Initialization
-document.addEventListener('DOMContentLoaded', () => {
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initWallet();
+    
+    // [DEBUG]: Show User ID in UI for verification
+    const debugId = getUserId();
+    const idDisplay = document.createElement('div');
+    idDisplay.style.cssText = "position:fixed; bottom:5px; right:5px; font-size:10px; color:#ccc; opacity:0.5; pointer-events:none; z-index:9999;";
+    idDisplay.innerText = `ID: ${debugId}`;
+    document.body.appendChild(idDisplay);
     
     // Bind Role Switchers
     window.switchMode = switchMode;
