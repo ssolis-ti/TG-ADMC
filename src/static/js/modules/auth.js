@@ -25,7 +25,12 @@ export function getUserId() {
 
     // 4. [DEV MODE]: Auto-fallback for browser testing
     if (DEV_MODE) {
-        return 99999; // Dev test user
+        // [FIX]: Generate random ID to support multi-user simulation on diff devices
+        if (!setID) {
+            const randomId = Math.floor(Math.random() * 89999) + 10000;
+            localStorage.setItem('sim_user_id', randomId);
+            return randomId;
+        }
     }
 
     return null;
