@@ -43,14 +43,12 @@ body {
 
 /* [TG-COMPAT]: Custom location for Wallet Button */
 #ton-connect-btn {
-  margin-top: 10px;
-  margin-bottom: 0;
+  margin: 10px auto 0 auto; /* Auto margins for horizontal centering */
   z-index: 1000;
-  width: 100%;
+  width: fit-content; /* Only take necessary width */
   display: flex;
   justify-content: center;
   align-items: center;
-  text-align: center;
 }
 
 /* Force TON Connect button to center */

@@ -1,11 +1,11 @@
 /**
  * [CONTROLLERS]: Business Logic
  */
-import * as API from './api.js?v=15';
-import * as UI from './ui.js?v=15';
-import * as Wallet from './wallet.js?v=15';
-import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=15';
-import { ROLES, ESCROW_ADDRESS } from './config.js?v=15';
+import * as API from './api.js?v=16';
+import * as UI from './ui.js?v=16';
+import * as Wallet from './wallet.js?v=16';
+import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=16';
+import { ROLES, ESCROW_ADDRESS } from './config.js?v=16';
 
 const tg = getTg();
 
@@ -209,44 +209,25 @@ export async function loadMyChannels(container) {
     }
 }
 
-// [POLLING]: State for auto-refresh
-let dealsPollingInterval = null;
+// [POLLING]: Removed for MVP stability
+// let dealsPollingInterval = null;
 
-export async function loadUserDeals(container, role, isSilent = false) {
+export async function loadUserDeals(container, role) {
     const userId = getUserId();
     if (!userId) return;
 
-    // Clear previous interval to prevent duplicates
-    if (dealsPollingInterval) clearInterval(dealsPollingInterval);
-
-    if (!isSilent) {
-        container.innerHTML = '<div class="state-message">Syncing deals...</div>';
-    }
+    container.innerHTML = '<div class="state-message">Syncing deals...</div>';
     
     try {
         const allDeals = await API.fetchUserDeals(userId);
         const filtered = allDeals.filter(d => d.user_role === role);
         
-        // [POLLING]: Restart interval
-        dealsPollingInterval = setInterval(() => {
-            // Only refresh if tab is still visible/active (simple check: container is in DOM)
-            if (document.body.contains(container)) {
-                loadUserDeals(container, role, true);
-            } else {
-                clearInterval(dealsPollingInterval);
-            }
-        }, 5000); // 5 seconds refresh
-
-        if (!isSilent) container.innerHTML = '';
+        container.innerHTML = '';
         
         if (filtered.length === 0) {
             container.innerHTML = `<div class="state-message">No deals found.</div>`;
             return;
         }
-
-        // Use a temporary container for silent updates to diff or just replace
-        const listWrapper = document.createElement('div');
-
 
         const isAdvertiser = role === ROLES.ADVERTISER;
         filtered.forEach(deal => {
@@ -313,15 +294,12 @@ export async function loadUserDeals(container, role, isSilent = false) {
                     loadUserDeals(container, role);
                 }
             });
-            listWrapper.appendChild(card);
+
+            container.appendChild(card);
         });
-        
-        // [UX]: Swap content instantly
-        container.innerHTML = '';
-        container.appendChild(listWrapper);
 
     } catch (e) {
-        if (!isSilent) container.innerHTML = `<div class="state-message">Error loading deals.</div>`;
+        container.innerHTML = `<div class="state-message">Error loading deals.</div>`;
     }
 }
 
