@@ -1,11 +1,11 @@
 /**
  * [CONTROLLERS]: Business Logic
  */
-import * as API from './api.js?v=20';
-import * as UI from './ui.js?v=20';
-import * as Wallet from './wallet.js?v=20';
-import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=20';
-import { ROLES, ESCROW_ADDRESS } from './config.js?v=20';
+import * as API from './api.js?v=21';
+import * as UI from './ui.js?v=21';
+import * as Wallet from './wallet.js?v=21';
+import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=21';
+import { ROLES, ESCROW_ADDRESS } from './config.js?v=21';
 
 const tg = getTg();
 
@@ -316,12 +316,15 @@ export async function loadUserDeals(container, role, isSilent = false) {
                     loadUserDeals(container, role);
                 }
             });
-
-            container.appendChild(card);
+            listWrapper.appendChild(card);
         });
 
+        // [UX]: Swap content instantly
+        container.innerHTML = '';
+        container.appendChild(listWrapper);
+
     } catch (e) {
-        container.innerHTML = `<div class="state-message">Error loading deals.</div>`;
+        if (!isSilent) container.innerHTML = `<div class="state-message">Error loading deals.</div>`;
     }
 }
 
