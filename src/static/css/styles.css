@@ -1,0 +1,366 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&display=swap");
+
+:root {
+  /* Base Telegram Theme vars (fallback) */
+  --tg-bg: var(--tg-theme-bg-color, #ffffff);
+  --tg-text: var(--tg-theme-text-color, #222222);
+
+  /* Fresh Palette */
+  --primary-orange: #ff8c42;
+  --primary-yellow: #f9c80e;
+  --fresh-green: #d4e157;
+  /* Amaralelloish */
+  --accent-gradient: linear-gradient(135deg, #ff8c42 0%, #f9c80e 100%);
+
+  /* UI Vars */
+  --card-bg: var(--tg-theme-secondary-bg-color, #f9f9f9);
+  --text-main: var(--tg-theme-text-color, #333);
+  --text-secondary: #888;
+}
+
+body {
+  font-family: "Outfit", sans-serif;
+  background-color: var(--tg-bg);
+  color: var(--text-main);
+  margin: 0;
+  padding: 20px;
+  /* [TG-COMPAT]: Safe Area for Notch */
+  padding-top: calc(20px + env(safe-area-inset-top));
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header with vibrancy */
+.header {
+  /* [TG-COMPAT]: Flex row for button + title */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin-bottom: 35px;
+  padding-bottom: 20px;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+/* [TG-COMPAT]: Custom location for Wallet Button */
+#ton-connect-btn {
+  margin-bottom: 15px;
+  z-index: 1000;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.header h1 {
+  font-size: 32px;
+  margin: 0 0 5px 0;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+/* [MODULAR]: Tab Navigation */
+.tabs {
+  display: none; /* Hidden on Dashboard, shown via JS */
+  background: rgba(0, 0, 0, 0.05);
+  padding: 5px;
+  border-radius: 14px;
+  margin-bottom: 25px;
+}
+
+.tab {
+  flex: 1;
+  border: none;
+  background: none;
+  padding: 10px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab.active {
+  background: #fff;
+  color: var(--primary-orange);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* [MVP REQ]: Deal Card & Statuses */
+.deal-card {
+  border-left: 4px solid var(--primary-orange);
+}
+
+.status-tag {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.status-created {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+.status-drafted {
+  background: #fff8e1;
+  color: #f57f17;
+}
+.status-awaiting {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.deal-body {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.draft-box {
+  margin-top: 10px;
+  padding: 10px;
+  background: #fff;
+  border: 1px dashed #ddd;
+  border-radius: 8px;
+}
+
+.deal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.btn-sm {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.wait-msg {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.header p {
+  margin: 5px 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Modern Cards */
+.card {
+  background: var(--card-bg);
+  padding: 24px;
+  border-radius: 20px;
+  /* Softer corners */
+  margin-bottom: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  /* Floating effect */
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card:active {
+  transform: scale(0.99);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.verified-badge {
+  background-color: rgba(52, 199, 89, 0.15);
+  color: #34c759;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* [MODULAR]: Stats Grid
+   Displays verified metrics in a professional 2x2 layout
+*/
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat-box {
+  background: rgba(0, 0, 0, 0.04);
+  padding: 10px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tg-text);
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Colorful Buttons */
+.btn {
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  padding: 16px 20px;
+  border-radius: 16px;
+  width: 100%;
+  font-family: "Outfit", sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4);
+  /* Glow effect */
+  transition: all 0.2s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 5px rgba(255, 140, 66, 0.3);
+}
+
+/* Loading State */
+.state-message {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-top: 50px;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+/* Role Selection (Dashboard) */
+.role-card {
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  border: 1px solid transparent;
+}
+
+.role-card:active {
+  transform: scale(0.98);
+}
+
+.role-card:hover {
+  border-color: var(--primary-orange);
+  box-shadow: 0 8px 25px rgba(255, 140, 66, 0.15);
+}
+
+.role-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.role-card h3 {
+  margin: 0 0 5px 0;
+  color: var(--tg-text);
+}
+
+.role-card p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* [MVP REQ]: Onboarding Experience */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.onboarding-card {
+  background: #fff;
+  border-radius: 28px;
+  padding: 30px;
+  width: 100%;
+  max-width: 350px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.onboarding-step h2 {
+  font-size: 26px;
+  margin-bottom: 12px;
+  color: #222;
+}
+
+.onboarding-step p {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.onboarding-icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

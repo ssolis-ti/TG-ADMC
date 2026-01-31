@@ -1,0 +1,69 @@
+/**
+ * [AUTH]: Identity and Session Management
+ */
+const tg = window.Telegram.WebApp;
+
+// [DEV MODE]: Auto-assign ID when testing in browser
+const DEV_MODE = !tg.initDataUnsafe?.user;
+if (DEV_MODE) {
+    console.warn("[AUTH] DEV MODE: Auto-assigning test user ID 99999");
+}
+
+export function getUserId() {
+    // 1. Priority: URL Parameter (Testing)
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramId = urlParams.get('user_id');
+    if (paramId) return parseInt(paramId);
+
+    // 2. Telegram WebApp Data (Production)
+    const user = tg.initDataUnsafe?.user;
+    if (user && user.id) return user.id;
+
+    // 3. Persistence (LocalStorage)
+    let setID = localStorage.getItem('sim_user_id');
+    if (setID) return parseInt(setID);
+
+    // 4. [DEV MODE]: Auto-fallback for browser testing
+    if (DEV_MODE) {
+        return 99999; // Dev test user
+    }
+
+    return null;
+}
+
+export function forceSetId() {
+    const newId = prompt("Enter new Simulation ID:", "11111");
+    if (newId) {
+        localStorage.setItem('sim_user_id', newId);
+        window.location.reload();
+    }
+}
+
+export function getTg() {
+    return tg;
+}
+
+// [SAFE]: Wrapper for showAlert that works in browser too
+export function safeAlert(message) {
+    if (tg.showAlert) {
+        try {
+            tg.showAlert(message);
+        } catch (e) {
+            alert(message);
+        }
+    } else {
+        alert(message);
+    }
+}
+
+// [SAFE]: Wrapper for MainButton that works in browser too
+export function safeMainButton(action) {
+    if (tg.MainButton && typeof tg.MainButton[action] === 'function') {
+        try {
+            tg.MainButton[action]();
+        } catch (e) {
+            console.log(`[UI] MainButton.${action}() not available`);
+        }
+    }
+}
+

@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  bot:
+    build: .
+    container_name: tg-admc-bot
+    volumes:
+      - .:/app
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/tgadmc
+      - WEBHOOK_URL=${WEBHOOK_URL}
+      - WALLET_MNEMONIC=${WALLET_MNEMONIC}
+    ports:
+      - "7777:8000"
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: postgres:15-alpine
+    container_name: tg-admc-db
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=tgadmc
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  # ngrok:
+  #   image: ngrok/ngrok:latest
+  #   restart: unless-stopped
+  #   command: http bot:8000
+  #   environment:
+  #     NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+  #   ports:
+  #     - "4040:4040"
+  #   depends_on:
+  #     - bot
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    # [PRODUCTION]: Use Token for stable custom domain
+    command: tunnel run --token ${TUNNEL_TOKEN}
+    depends_on:
+      - bot
+
+volumes:
+  postgres_data:
