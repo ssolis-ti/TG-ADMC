@@ -286,8 +286,8 @@ TG-ADMC/
 │   ├── bot/                 # Telegram bot handlers
 │   │   ├── handlers/
 │   │   │   ├── common.py    # /start command
-│   │   │   └── channel.py   # Channel registration
-│   │   └── main.py          # Bot initialization
+│   │   │   └── verification.py # Channel registration and smart link logic
+│   │   └── (no main.py, see src/main.py)
 │   ├── api/                 # FastAPI routes
 │   │   └── routes.py        # API endpoints
 │   ├── db/                  # Database layer
@@ -330,7 +330,9 @@ export DATABASE_URL=sqlite+aiosqlite:///./database.db
 uvicorn src.main:app --reload --port 8000
 
 # In another terminal, run bot
-python -m src.bot.main
+# In another terminal, run bot (via Uvicorn as it's part of the main app)
+# Note: The bot runs inside the FastAPI process in this MVP
+uvicorn src.main:app --reload --port 8000
 ```
 
 ### Database Migrations
