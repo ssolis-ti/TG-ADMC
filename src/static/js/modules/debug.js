@@ -185,3 +185,4 @@ if (document.readyState === 'loading') {
 }
 
 export { initDebugPanel, toggleDebugPanel };
+

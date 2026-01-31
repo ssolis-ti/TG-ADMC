@@ -96,3 +96,4 @@ export async function saveRole(userId, role) {
         body: JSON.stringify({ user_id: userId, role: role })
     });
 }
+

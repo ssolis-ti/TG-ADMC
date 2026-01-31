@@ -18,3 +18,4 @@ export const UI = {
         RIGHT: 'tab-right'
     }
 };
+

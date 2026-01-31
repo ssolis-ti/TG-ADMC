@@ -149,3 +149,4 @@ export function renderDealCard(deal, isAdvertiser, callbacks) {
 
     return card;
 }
+

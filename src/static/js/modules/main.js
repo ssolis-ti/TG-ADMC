@@ -1,12 +1,12 @@
 /**
  * [MAIN]: Application Entry Point
  */
-import { getTg, getUserId, forceSetId, safeAlert } from './auth.js?v=8';
-import { UI, ROLES } from './config.js?v=8';
-import * as Controllers from './controllers.js?v=8';
-import { initWallet, isWalletConnected, requireWallet, getWalletAddress } from './wallet.js?v=8';
-import { saveRole } from './api.js?v=8';
-import './debug.js?v=8'; // [DEMO] Hidden debug panel (Ctrl+Shift+D)
+import { getTg, getUserId, forceSetId, safeAlert } from './auth.js?v=12';
+import { UI, ROLES } from './config.js?v=12';
+import * as Controllers from './controllers.js?v=12';
+import { initWallet, isWalletConnected, requireWallet, getWalletAddress } from './wallet.js?v=12';
+import { saveRole } from './api.js?v=12';
+import './debug.js?v=12'; // [DEMO] Hidden debug panel (Ctrl+Shift+D)
 
 const tg = getTg();
 tg.expand();
@@ -87,3 +87,4 @@ function activateTab(side) {
 }
 
 // Wallet initialized via wallet.js module
+

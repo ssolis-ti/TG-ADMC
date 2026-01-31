@@ -2,9 +2,9 @@
  * [WALLET]: TON Connect Integration
  * Handles wallet connection and blockchain transactions.
  */
-import { getTg, safeAlert, getUserId } from './auth.js?v=8';
-import { ESCROW_ADDRESS } from './config.js?v=8';
-import { saveWallet } from './api.js?v=8';
+import { getTg, safeAlert, getUserId } from './auth.js?v=12';
+import { ESCROW_ADDRESS } from './config.js?v=12';
+import { saveWallet } from './api.js?v=12';
 
 const tg = getTg();
 let tonConnectUI = null;
@@ -222,4 +222,5 @@ export async function sendPayment(amountTon, dealId) {
         throw e;
     }
 }
+
 

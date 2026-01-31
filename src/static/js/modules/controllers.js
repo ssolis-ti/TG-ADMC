@@ -1,11 +1,11 @@
 /**
  * [CONTROLLERS]: Business Logic
  */
-import * as API from './api.js?v=8';
-import * as UI from './ui.js?v=8';
-import * as Wallet from './wallet.js?v=8';
-import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=8';
-import { ROLES, ESCROW_ADDRESS } from './config.js?v=8';
+import * as API from './api.js?v=12';
+import * as UI from './ui.js?v=12';
+import * as Wallet from './wallet.js?v=12';
+import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=12';
+import { ROLES, ESCROW_ADDRESS } from './config.js?v=12';
 
 const tg = getTg();
 
@@ -295,3 +295,4 @@ export async function loadUserDeals(container, role) {
         container.innerHTML = `<div class="state-message">Error loading deals.</div>`;
     }
 }
+
