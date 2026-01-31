@@ -53,8 +53,8 @@ async def cmd_start(message: types.Message):
             f"3️⃣ Browse channels and create your ad\n\n"
             f"**As Channel Owner:**\n"
             f"1️⃣ Add this bot as **Administrator** to your channel\n"
-            f"2️⃣ Click \"🚀 Open Marketplace\" and register your channel\n"
-            f"3️⃣ Set your price and start receiving ad requests!\n\n"
+            f"2️⃣ **Send your channel link (e.g., @mychannel) here in the chat**\n"
+            f"3️⃣ Open Marketplace to set your price\n\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n\n"
             f"👇 **Ready? Let's go!**",
             reply_markup=keyboard
