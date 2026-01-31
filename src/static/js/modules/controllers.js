@@ -1,11 +1,11 @@
 /**
  * [CONTROLLERS]: Business Logic
  */
-import * as API from './api.js?v=23';
-import * as UI from './ui.js?v=23';
-import * as Wallet from './wallet.js?v=23';
-import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=23';
-import { ROLES, ESCROW_ADDRESS } from './config.js?v=23';
+import * as API from './api.js?v=24';
+import * as UI from './ui.js?v=24';
+import * as Wallet from './wallet.js?v=24';
+import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=24';
+import { ROLES, ESCROW_ADDRESS } from './config.js?v=24';
 
 const tg = getTg();
 
@@ -329,7 +329,7 @@ export async function loadUserDeals(container, role) {
                     loadUserDeals(container, role);
                 }
             });
-            });
+
             container.appendChild(card);
         });
 

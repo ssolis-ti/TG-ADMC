@@ -3,7 +3,9 @@ from aiogram.filters import Command
 from aiogram.enums import ChatType
 from src.services.identity import IdentityService
 from src.db.database import get_session
+from src.db.database import get_session
 from src.core.logger import app_logger
+from src.core.config import settings
 
 router = Router()
 
@@ -107,7 +109,7 @@ async def register_channel_logic(message: types.Message, bot: Bot, chat: types.C
         kb = types.InlineKeyboardMarkup(inline_keyboard=[[
             types.InlineKeyboardButton(
                 text="🔙 Open Marketplace",
-                web_app=types.WebAppInfo(url="https://forbes-mac-testament-bristol.trycloudflare.com")
+                web_app=types.WebAppInfo(url=f"{settings.WEBHOOK_URL}/app")
             )
         ]])
 
