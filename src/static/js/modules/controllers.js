@@ -1,11 +1,11 @@
 /**
  * [CONTROLLERS]: Business Logic
  */
-import * as API from './api.js?v=18';
-import * as UI from './ui.js?v=18';
-import * as Wallet from './wallet.js?v=18';
-import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=18';
-import { ROLES, ESCROW_ADDRESS } from './config.js?v=18';
+import * as API from './api.js?v=20';
+import * as UI from './ui.js?v=20';
+import * as Wallet from './wallet.js?v=20';
+import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=20';
+import { ROLES, ESCROW_ADDRESS } from './config.js?v=20';
 
 const tg = getTg();
 
@@ -209,26 +209,48 @@ export async function loadMyChannels(container) {
     }
 }
 
-// [POLLING]: Removed for MVP stability
-// let dealsPollingInterval = null;
+// [POLLING]: State for auto-refresh
+let dealsPollingInterval = null;
 
-export async function loadUserDeals(container, role) {
+export async function loadUserDeals(container, role, isSilent = false) {
     const userId = getUserId();
     if (!userId) return;
 
-    container.innerHTML = '<div class="state-message">Syncing deals...</div>';
+    // Clear previous interval if this is a fresh load (not a silent refresh)
+    // allowing the interval to "survive" its own recursive call would be wrong if we want strict control,
+    // but here we want to RESET it on every manual tab switch, and maintain it on recursive calls.
+    // simpler: valid polling is linked to the container lifecycle.
+    
+    if (!isSilent) {
+        if (dealsPollingInterval) clearInterval(dealsPollingInterval);
+        container.innerHTML = '<div class="state-message">Syncing deals...</div>';
+    } 
     
     try {
         const allDeals = await API.fetchUserDeals(userId);
         const filtered = allDeals.filter(d => d.user_role === role);
         
-        container.innerHTML = '';
+        // [POLLING]: Setup new interval if not already running or if we just cleared it
+        if (!isSilent) {
+             dealsPollingInterval = setInterval(() => {
+                if (document.body.contains(container) && container.style.display !== 'none') {
+                    loadUserDeals(container, role, true);
+                } else {
+                    clearInterval(dealsPollingInterval);
+                }
+            }, 5000); 
+        }
+
+        if (!isSilent) container.innerHTML = '';
         
         if (filtered.length === 0) {
             container.innerHTML = `<div class="state-message">No deals found.</div>`;
             return;
         }
 
+        // Use a wrapper to build content off-DOM then swap (reduces flicker)
+        const listWrapper = document.createElement('div');
+        
         const isAdvertiser = role === ROLES.ADVERTISER;
         filtered.forEach(deal => {
             const card = UI.renderDealCard(deal, isAdvertiser, {

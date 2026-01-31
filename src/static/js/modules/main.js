@@ -1,18 +1,21 @@
 /**
  * [MAIN]: Application Entry Point
  */
-import { getTg, getUserId, forceSetId, safeAlert } from './auth.js?v=18';
-import { UI, ROLES } from './config.js?v=18';
-import * as Controllers from './controllers.js?v=18';
-import { initWallet, isWalletConnected, requireWallet, getWalletAddress } from './wallet.js?v=18';
-import { saveRole } from './api.js?v=18';
-import './debug.js?v=18'; // [DEMO] Hidden debug panel (Ctrl+Shift+D)
+import { getTg, getUserId, forceSetId, safeAlert } from './auth.js?v=20';
+import { UI, ROLES } from './config.js?v=20';
+import * as Controllers from './controllers.js?v=20';
+import { initWallet, isWalletConnected, requireWallet, getWalletAddress } from './wallet.js?v=20';
+import { saveRole } from './api.js?v=20';
+import './debug.js?v=20'; // [DEMO] Hidden debug panel (Ctrl+Shift+D)
 
 const tg = getTg();
 tg.expand();
 
-    // Initialization
-    document.addEventListener('DOMContentLoaded', () => {
+// State
+let currentRole = null;
+
+// Initialization
+document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initWallet();
     
