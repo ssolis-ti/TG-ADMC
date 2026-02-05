@@ -22,6 +22,28 @@ class EscrowService:
         self.session = session
         self.logger = app_logger
 
+    async def reject_deal(self, deal_id: int, reason: str) -> Deal:
+        """
+        [STEP 2 Alt] Reject Deal
+        ------------------------
+        Owner rejects the deal.
+        """
+        deal = await self.session.get(Deal, deal_id)
+        if not deal:
+            raise ValueError("Deal not found")
+            
+        # Allow rejection if Created or Locked (Pre-Paid)
+        if deal.status not in [DealStatus.CREATED, DealStatus.LOCKED]:
+             raise ValueError("Cannot reject deal in current status")
+
+        deal.status = DealStatus.REJECTED
+        deal.rejection_reason = reason
+        deal.updated_at = datetime.utcnow()
+        await self.session.commit()
+        
+        self.logger.info(f"Deal Rejected: ID={deal.id} | Reason={reason}", extra={"deal_id": deal.id, "status": "REJECTED"})
+        return deal
+
     async def create_deal_request(self, advertiser_id: int, channel_id: int, brief: str, amount: float) -> Deal:
         """
         [STEP 1] Create Deal Request

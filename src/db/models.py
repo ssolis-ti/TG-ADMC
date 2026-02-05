@@ -20,6 +20,7 @@ class DealStatus(str, Enum):
     PUBLISHED = "published"         # Bot posted to channel.
     COMPLETED = "completed"         # Verification passed, funds released.
     CANCELLED = "cancelled"         # Refunded or aborted.
+    REJECTED = "rejected"           # Deal rejected by owner.
 
 class UserRole(str, Enum):
     """

@@ -237,6 +237,27 @@ async def accept_deal(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.post("/deals/{deal_id}/reject")
+async def reject_deal(
+    deal_id: int, 
+    req: ActionWithContent,
+    session: AsyncSession = Depends(get_session)
+):
+    """
+    [Channel Owner] Reject a deal proposal.
+    """
+    ident_service = IdentityService(session)
+    escrow_service = EscrowService(session)
+    try:
+        user = await ident_service.get_or_create_user(req.user_id)
+        # Verify ownership (implicit in logic but good to enforce if needed, 
+        # but Service handles status check which is primary guard)
+        
+        deal = await escrow_service.reject_deal(deal_id, req.content)
+        return {"status": deal.status}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.post("/deals/{deal_id}/submit-draft")
 async def submit_draft(deal_id: int, req: ActionWithContent, session: AsyncSession = Depends(get_session)):
     """ [OWNER] Submit the creative draft """

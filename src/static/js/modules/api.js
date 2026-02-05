@@ -51,6 +51,13 @@ export async function acceptDeal(id, userId) {
     });
 }
 
+export async function rejectDeal(id, userId, reason) {
+    return fetchWithHeaders(`/api/deals/${id}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, content: reason })
+    });
+}
+
 export async function submitDraft(id, userId, content) {
     return fetchWithHeaders(`/api/deals/${id}/submit-draft`, {
         method: 'POST',

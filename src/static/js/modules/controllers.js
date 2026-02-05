@@ -1,11 +1,11 @@
 /**
  * [CONTROLLERS]: Business Logic
  */
-import * as API from './api.js?v=24';
-import * as UI from './ui.js?v=24';
-import * as Wallet from './wallet.js?v=24';
-import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=24';
-import { ROLES, ESCROW_ADDRESS } from './config.js?v=24';
+import * as API from './api.js?v=25';
+import * as UI from './ui.js?v=25';
+import * as Wallet from './wallet.js?v=25';
+import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=25';
+import { ROLES, ESCROW_ADDRESS } from './config.js?v=25';
 
 const tg = getTg();
 
@@ -294,6 +294,26 @@ export async function loadUserDeals(container, role) {
                     hideProgress();
                     if (res.ok) {
                         safeAlert("✅ Deal Accepted! Now submit your draft.");
+                    }
+                    loadUserDeals(container, role);
+                },
+                onReject: async (id) => {
+                    const reason = prompt("Reason for rejection:");
+                    if (!reason) return;
+
+                    showProgress();
+                    try {
+                        const res = await API.rejectDeal(id, userId, reason);
+                        hideProgress();
+                        if (res.ok) {
+                             safeAlert("❌ Deal Rejected.");
+                        } else {
+                             const err = await res.json();
+                             safeAlert("Error: " + (err.detail || "Unknown error"));
+                        }
+                    } catch (e) {
+                         hideProgress();
+                         safeAlert("Error rejecting deal.");
                     }
                     loadUserDeals(container, role);
                 },
