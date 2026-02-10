@@ -1,7 +1,7 @@
 /**
  * [UI]: Pure Rendering Logic
  */
-import { getTg } from './auth.js';
+import { getTg } from './auth.js?v=30';
 
 const tg = getTg();
 
@@ -114,7 +114,8 @@ export function renderDealCard(deal, isAdvertiser, callbacks) {
             
             actions.appendChild(approveBtn);
             actions.appendChild(reviseBtn);
-        } else if (deal.status === 'awaiting') {
+        // [UX FIX]: Allow payment retry if connection lost during creation (Created) OR if approved (Awaiting)
+        } else if (deal.status === 'awaiting' || deal.status === 'created') {
             const btn = document.createElement('button');
             btn.className = 'btn btn-sm btn-primary';
             btn.innerText = `💎 Pay ${deal.amount_ton} TON`;
@@ -149,8 +150,9 @@ export function renderDealCard(deal, isAdvertiser, callbacks) {
     if (!terminalStatuses.includes(deal.status.toLowerCase()) && !deal.is_disputed && callbacks.onDispute) {
         const disputeBtn = document.createElement('button');
         disputeBtn.className = 'btn btn-sm btn-danger';
-        disputeBtn.style.cssText = 'margin-top:8px; width:100%; background:rgba(255,59,48,0.15); color:#ff3b30; border:1px solid rgba(255,59,48,0.3);';
-        disputeBtn.innerText = '🚨 Report Dispute';
+        // [UX FIX]: Surgical precision — smaller button, auto width, less intrusive
+        disputeBtn.style.cssText = 'margin-top:8px; width:auto; font-size:11px; padding:4px 8px; background:rgba(255,59,48,0.1); color:#ff3b30; border:1px solid rgba(255,59,48,0.2); opacity:0.8;';
+        disputeBtn.innerHTML = '🚨 <small>Report Dispute</small>';
         disputeBtn.onclick = () => callbacks.onDispute(deal.id);
         actions.appendChild(disputeBtn);
     }

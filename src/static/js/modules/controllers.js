@@ -1,11 +1,11 @@
 /**
  * [CONTROLLERS]: Business Logic
  */
-import * as API from './api.js?v=26';
-import * as UI from './ui.js?v=26';
-import * as Wallet from './wallet.js?v=26';
-import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=26';
-import { ROLES, ESCROW_ADDRESS } from './config.js?v=26';
+import * as API from './api.js?v=30';
+import * as UI from './ui.js?v=30';
+import * as Wallet from './wallet.js?v=30';
+import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=30';
+import { ROLES, ESCROW_ADDRESS } from './config.js?v=30';
 
 const tg = getTg();
 

@@ -1,12 +1,12 @@
 /**
  * [MAIN]: Application Entry Point
  */
-import { getTg, getUserId, forceSetId, safeAlert } from './auth.js?v=26';
-import { UI, ROLES } from './config.js?v=26';
-import * as Controllers from './controllers.js?v=26';
-import { initWallet, isWalletConnected, requireWallet, getWalletAddress } from './wallet.js?v=26';
-import { saveRole } from './api.js?v=26';
-import './debug.js?v=26'; // [DEMO] Hidden debug panel (Ctrl+Shift+D)
+import { getTg, getUserId, forceSetId, safeAlert } from './auth.js?v=30';
+import { UI, ROLES } from './config.js?v=30';
+import * as Controllers from './controllers.js?v=30';
+import { initWallet, isWalletConnected, requireWallet, getWalletAddress } from './wallet.js?v=30';
+import { saveRole } from './api.js?v=30';
+import './debug.js?v=30'; // [DEMO] Hidden debug panel (Ctrl+Shift+D)
 
 const tg = getTg();
 tg.expand();
@@ -15,15 +15,36 @@ tg.expand();
 let currentRole = null;
 
 // Initialization
+// Initialization
 document.addEventListener('DOMContentLoaded', () => {
+    // [DEBUG]: Global Error Handler for Mobile
+    window.onerror = function(msg, url, line, col, error) {
+        alert("JS ERROR: " + msg + " @ " + line + ":" + col);
+    };
+
     initTabs();
-    initWallet();
+    
+    // [DEBUG]: Status Indicator
+    const debugStatus = document.createElement('div');
+    debugStatus.id = "debug-status";
+    debugStatus.style.cssText = "position:fixed; bottom:25px; right:5px; font-size:10px; color:#0f0; background:#000; padding:2px; z-index:9999;";
+    debugStatus.innerText = "Status: Init Wallet...";
+    document.body.appendChild(debugStatus);
+
+    try {
+        initWallet();
+        debugStatus.innerText = "Status: Wallet OK";
+    } catch (e) {
+        debugStatus.innerText = "Status: Wallet FAIL";
+        debugStatus.style.color = "#f00";
+        alert("⚠️ CRITICAL: Wallet Init Failed!\n\n" + e.message);
+    }
     
     // [DEBUG]: Show User ID in UI for verification
     const debugId = getUserId();
     const idDisplay = document.createElement('div');
     idDisplay.style.cssText = "position:fixed; bottom:5px; right:5px; font-size:10px; color:#ccc; opacity:0.5; pointer-events:none; z-index:9999;";
-    idDisplay.innerText = `ID: ${debugId}`;
+    idDisplay.innerText = "ID: " + debugId;
     document.body.appendChild(idDisplay);
     
     // Bind Role Switchers

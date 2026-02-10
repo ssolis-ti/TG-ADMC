@@ -1,8 +1,8 @@
 /**
  * [API]: Pure Data Layer
  */
-import { API_BASE } from './config.js';
-import { getTg } from './auth.js';
+import { API_BASE } from './config.js?v=30';
+import { getTg } from './auth.js?v=30';
 
 const tg = getTg();
 

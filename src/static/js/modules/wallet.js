@@ -2,9 +2,9 @@
  * [WALLET]: TON Connect Integration
  * Handles wallet connection and blockchain transactions.
  */
-import { getTg, safeAlert, getUserId } from './auth.js?v=12';
-import { ESCROW_ADDRESS } from './config.js?v=12';
-import { saveWallet } from './api.js?v=12';
+import { getTg, safeAlert, getUserId } from './auth.js?v=30';
+import { ESCROW_ADDRESS } from './config.js?v=30';
+import { saveWallet } from './api.js?v=30';
 
 const tg = getTg();
 let tonConnectUI = null;

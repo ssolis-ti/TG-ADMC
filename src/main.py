@@ -85,6 +85,18 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(RequestLogMiddleware)
 
+# [HARDENING]: Aggressive Cache Busting Middleware
+# Forces clients to re-fetch static assets and the app entry point
+@app.middleware("http")
+async def add_no_cache_headers(request, call_next):
+    response = await call_next(request)
+    # Apply to static files and main app entry points
+    if "/static/" in request.url.path or request.url.path in ["/app", "/"]:
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
 # [SECURITY]: CORS — Only allow requests from our own domain
 app.add_middleware(
     CORSMiddleware,
