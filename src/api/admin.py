@@ -9,11 +9,12 @@ from datetime import datetime
 import os
 
 from src.db.database import get_session
+from src.core.config import settings
 
 admin_router = APIRouter(prefix="/admin", tags=["Admin"])
 
-# [SECURITY]: Simple key for demo protection
-ADMIN_KEY = os.getenv("ADMIN_KEY", "hackathon2026")
+# [SECURITY]: Admin key from env var only (never hardcoded)
+ADMIN_KEY = settings.ADMIN_KEY
 
 def verify_admin_key(key: str = Query(...)):
     if key != ADMIN_KEY:

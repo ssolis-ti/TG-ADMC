@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
@@ -83,6 +84,19 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
         return response
 
 app.add_middleware(RequestLogMiddleware)
+
+# [SECURITY]: CORS — Only allow requests from our own domain
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://tgadmc.mpbot.cl",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ],
+    allow_methods=["GET", "POST", "PUT"],
+    allow_headers=["*"],
+)
+
 app.include_router(routes.router)
 app.include_router(admin_router)  # [DEMO] Admin endpoints
 

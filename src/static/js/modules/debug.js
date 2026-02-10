@@ -3,7 +3,12 @@
  * Hidden panel accessible via keyboard shortcut: Ctrl+Shift+D
  */
 
-const ADMIN_KEY = 'hackathon2026';
+// [SECURITY]: Admin key is never hardcoded — prompted at runtime
+let _adminKey = null;
+function getAdminKey() {
+    if (!_adminKey) _adminKey = prompt("🔑 Enter admin key:");
+    return _adminKey;
+}
 const API_BASE = '';
 
 // Panel HTML
@@ -122,13 +127,13 @@ async function debugAction(action) {
                 
             case 'reset':
                 if (!confirm('Reset all deals? Users and channels will be preserved.')) return;
-                const reset = await fetch(`${API_BASE}/admin/reset-db?key=${ADMIN_KEY}`, { method: 'POST' }).then(r => r.json());
+                const reset = await fetch(`${API_BASE}/admin/reset-db?key=${getAdminKey()}`, { method: 'POST' }).then(r => r.json());
                 output.textContent = `🔄 RESET RESULT\n${JSON.stringify(reset, null, 2)}`;
                 break;
                 
             case 'purge':
                 if (!confirm('⚠️ DANGER: This will delete ALL data (users, channels, deals). Continue?')) return;
-                const purge = await fetch(`${API_BASE}/admin/purge-all?key=${ADMIN_KEY}`, { method: 'POST' }).then(r => r.json());
+                const purge = await fetch(`${API_BASE}/admin/purge-all?key=${getAdminKey()}`, { method: 'POST' }).then(r => r.json());
                 output.textContent = `🗑️ PURGE RESULT\n${JSON.stringify(purge, null, 2)}`;
                 break;
                 

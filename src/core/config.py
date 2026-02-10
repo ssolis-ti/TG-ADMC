@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     # [Start] Debug
     DEBUG: bool = True # [DEBUG MODE] Set to True to see all logs
     
+    # [SECURITY]: Admin key for destructive endpoints
+    ADMIN_KEY: str = "change-me-in-env"
+    
     # [Start] Ngrok
     NGROK_AUTHTOKEN: Optional[str] = None
     

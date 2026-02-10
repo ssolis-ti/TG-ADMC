@@ -10,14 +10,16 @@ if (DEV_MODE) {
 }
 
 export function getUserId() {
-    // 1. Priority: URL Parameter (Testing)
-    const urlParams = new URLSearchParams(window.location.search);
-    const paramId = urlParams.get('user_id');
-    if (paramId) return parseInt(paramId);
-
-    // 2. Telegram WebApp Data (Production)
+    // 1. Priority: Telegram WebApp Data (Production — tamper-proof)
     const user = tg.initDataUnsafe?.user;
     if (user && user.id) return user.id;
+
+    // 2. URL Parameter (DEV_MODE only — never in production)
+    if (DEV_MODE) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramId = urlParams.get('user_id');
+        if (paramId) return parseInt(paramId);
+    }
 
     // 3. Persistence (LocalStorage)
     let setID = localStorage.getItem('sim_user_id');
