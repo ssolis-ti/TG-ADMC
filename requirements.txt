@@ -12,3 +12,4 @@ requests>=2.31.0
 APScheduler>=3.10.4
 loguru>=0.7.2
 tonsdk>=1.0.14
+tenacity>=8.2.3

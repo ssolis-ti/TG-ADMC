@@ -1,7 +1,8 @@
 from aiogram import Router, types
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command, CommandObject
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.services.identity import IdentityService
+from src.services.escrow import EscrowService
 from src.db.database import get_session
 from fastapi import Depends
 from src.core.config import settings
@@ -60,3 +61,41 @@ async def cmd_start(message: types.Message):
             reply_markup=keyboard
         )
         break # Close generator
+
+@router.message(Command("dispute"))
+async def cmd_dispute(message: types.Message, command: CommandObject):
+    """
+    Handles /dispute <deal_id> <reason>
+    """
+    if not command.args:
+        await message.answer("⚠️ **Usage**: /dispute <deal_id> <reason>\nExample: `/dispute 12 Channel owner did not post`")
+        return
+
+    try:
+        args = command.args.split(" ", 1)
+        if len(args) < 2:
+             await message.answer("⚠️ Please provide a reason.\nUsage: `/dispute <deal_id> <reason>`")
+             return
+             
+        deal_id_str = args[0]
+        if not deal_id_str.isdigit():
+            await message.answer("❌ Deal ID must be a number.")
+            return
+
+        deal_id = int(deal_id_str)
+        reason = args[1]
+        
+        async for session in get_session():
+            escrow_service = EscrowService(session)
+            await escrow_service.raise_dispute(deal_id, reason)
+            await message.answer(
+                f"🚨 **Dispute Raised for Deal #{deal_id}**\n\n"
+                f"**Reason**: {reason}\n\n"
+                f"Support team has been notified. We will review the on-chain evidence and contact you."
+            )
+            break
+            
+    except ValueError:
+        await message.answer("❌ **Error**: Deal not found.")
+    except Exception as e:
+        await message.answer(f"❌ **System Error**: {str(e)}")

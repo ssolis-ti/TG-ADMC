@@ -302,6 +302,14 @@ async def request_revision(deal_id: int, req: ActionWithContent, session: AsyncS
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+class DisputeRequest(BaseModel):
+    """
+    [HARDENING] DTO for raising a dispute on a deal.
+    Available to both Advertiser and Owner roles.
+    """
+    user_id: int
+    reason: str
+
 @router.post("/deals/{deal_id}/confirm-payment")
 async def confirm_payment(deal_id: int, req: PaymentConfirmation, session: AsyncSession = Depends(get_session)):
     """ [ADVERTISER] Confirm payment via TON Connect """
@@ -311,7 +319,6 @@ async def confirm_payment(deal_id: int, req: PaymentConfirmation, session: Async
         user = await ident_service.get_or_create_user(req.user_id)
         
         # [CRITICAL VULNERABILITY]: MVP Mode (Blind Trust).
-        # [VIRAL VECTOR]: El frontend nos envía un hash y nosotros lo creemos.
         # [RAPAZ AUDIT REQUIRED]: En V2, esto DEBE conectarse a Toncenter API.
         # Check list:
         # 1. ¿El receptor es nuestra wallet?
@@ -320,6 +327,35 @@ async def confirm_payment(deal_id: int, req: PaymentConfirmation, session: Async
         # Si falla -> RECHAZAR.
         deal = await escrow_service.lock_funds(deal_id, req.transaction_hash)
         return {"status": deal.status}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/deals/{deal_id}/dispute")
+async def dispute_deal(
+    deal_id: int,
+    req: DisputeRequest,
+    session: AsyncSession = Depends(get_session)
+):
+    """
+    [HARDENING] Raise a dispute on a deal.
+    
+    Available to both Advertiser and Owner.
+    Flags the deal as disputed and logs the reason for admin review.
+    Does NOT change deal status — just marks it for attention.
+    """
+    ident_service = IdentityService(session)
+    escrow_service = EscrowService(session)
+    try:
+        user = await ident_service.get_or_create_user(req.user_id)
+        deal = await escrow_service.raise_dispute(deal_id, req.reason)
+        return {
+            "status": "disputed",
+            "deal_id": deal.id,
+            "is_disputed": deal.is_disputed,
+            "reason": deal.dispute_reason
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 @router.get("/deals/user/{user_id}")

@@ -80,6 +80,7 @@ export function renderDealCard(deal, isAdvertiser, callbacks) {
     card.innerHTML = `
         <div class="card-header">
             <span class="status-tag status-${deal.status.toLowerCase()}">${deal.status.toUpperCase()}</span>
+            ${deal.is_disputed ? '<span class="dispute-badge">🚨 DISPUTED</span>' : ''}
             <small>💎 ${deal.amount_ton} TON</small>
         </div>
         <div class="progress-bar-container" style="background:#333; border-radius:4px; height:6px; margin:8px 0;">
@@ -88,6 +89,7 @@ export function renderDealCard(deal, isAdvertiser, callbacks) {
         <div class="status-message" style="font-size:12px; color:#aaa; margin-bottom:8px;">
             ${statusMessages[deal.status.toLowerCase()] || '...'}
         </div>
+        ${deal.is_disputed ? `<div class="dispute-info" style="background:rgba(255,59,48,0.1); border:1px solid rgba(255,59,48,0.3); border-radius:6px; padding:8px; margin-bottom:8px; font-size:12px; color:#ff3b30;">🚨 <strong>Dispute:</strong> ${escapeHtml(deal.dispute_reason)}</div>` : ''}
         <div class="deal-body">
             <strong>Brief:</strong> ${escapeHtml(deal.ad_brief)}
             ${deal.ad_draft ? `<div class="draft-box" style="background:#1a1a1a; padding:8px; border-radius:4px; margin-top:8px;"><strong>📝 Draft:</strong> ${escapeHtml(deal.ad_draft)}</div>` : ''}
@@ -98,9 +100,7 @@ export function renderDealCard(deal, isAdvertiser, callbacks) {
     const actions = card.querySelector('.deal-actions');
 
     if (isAdvertiser) {
-        // [FIX]: Correct flow - Approve/Revise on drafted, Pay on awaiting
         if (deal.status === 'drafted') {
-            // Advertiser sees draft, can approve or request changes
             const approveBtn = document.createElement('button');
             approveBtn.className = 'btn btn-sm';
             approveBtn.innerText = '✅ Approve Draft';
@@ -115,7 +115,6 @@ export function renderDealCard(deal, isAdvertiser, callbacks) {
             actions.appendChild(approveBtn);
             actions.appendChild(reviseBtn);
         } else if (deal.status === 'awaiting') {
-            // Advertiser approved, now must pay
             const btn = document.createElement('button');
             btn.className = 'btn btn-sm btn-primary';
             btn.innerText = `💎 Pay ${deal.amount_ton} TON`;
@@ -127,8 +126,6 @@ export function renderDealCard(deal, isAdvertiser, callbacks) {
     } else {
         // OWNER VIEW
         if (deal.status === 'created' || deal.status === 'locked') {
-            // [SIMPLIFIED FLOW]: Owner only needs to Accept or Reject
-            // For LOCKED (Pre-Paid) deals, Accept = Auto-Publish
             const acceptBtn = document.createElement('button');
             acceptBtn.className = 'btn btn-sm';
             acceptBtn.innerText = deal.status === 'locked' ? '✅ Accept & Publish' : '✅ Accept Deal';
@@ -145,6 +142,17 @@ export function renderDealCard(deal, isAdvertiser, callbacks) {
         } else {
             actions.innerHTML = `<span class="wait-msg">Status: ${deal.status}</span>`;
         }
+    }
+
+    // [HARDENING]: Dispute button — visible on all active deals (both roles)
+    const terminalStatuses = ['completed', 'cancelled', 'rejected'];
+    if (!terminalStatuses.includes(deal.status.toLowerCase()) && !deal.is_disputed && callbacks.onDispute) {
+        const disputeBtn = document.createElement('button');
+        disputeBtn.className = 'btn btn-sm btn-danger';
+        disputeBtn.style.cssText = 'margin-top:8px; width:100%; background:rgba(255,59,48,0.15); color:#ff3b30; border:1px solid rgba(255,59,48,0.3);';
+        disputeBtn.innerText = '🚨 Report Dispute';
+        disputeBtn.onclick = () => callbacks.onDispute(deal.id);
+        actions.appendChild(disputeBtn);
     }
 
     return card;

@@ -1,11 +1,11 @@
 /**
  * [CONTROLLERS]: Business Logic
  */
-import * as API from './api.js?v=25';
-import * as UI from './ui.js?v=25';
-import * as Wallet from './wallet.js?v=25';
-import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=25';
-import { ROLES, ESCROW_ADDRESS } from './config.js?v=25';
+import * as API from './api.js?v=26';
+import * as UI from './ui.js?v=26';
+import * as Wallet from './wallet.js?v=26';
+import { getUserId, getTg, safeAlert, safeMainButton } from './auth.js?v=26';
+import { ROLES, ESCROW_ADDRESS } from './config.js?v=26';
 
 const tg = getTg();
 
@@ -346,6 +346,27 @@ export async function loadUserDeals(container, role) {
                     await API.requestRevision(id, userId, reason);
                     hideProgress();
                     safeAlert("📝 Revision requested.");
+                    loadUserDeals(container, role);
+                },
+                // [HARDENING]: Dispute handler
+                onDispute: async (id) => {
+                    const reason = prompt("🚨 Describe the issue with this deal:");
+                    if (!reason || reason.trim() === '') return;
+                    
+                    showProgress();
+                    try {
+                        const res = await API.disputeDeal(id, userId, reason.trim());
+                        hideProgress();
+                        if (res.ok) {
+                            safeAlert("🚨 Dispute submitted.\n\nOur team will review the on-chain evidence and contact you.");
+                        } else {
+                            const err = await res.json();
+                            safeAlert("❌ Error: " + (err.detail || "Could not submit dispute."));
+                        }
+                    } catch (e) {
+                        hideProgress();
+                        safeAlert("❌ Error submitting dispute.");
+                    }
                     loadUserDeals(container, role);
                 }
             });

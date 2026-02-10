@@ -104,3 +104,11 @@ export async function saveRole(userId, role) {
     });
 }
 
+// [HARDENING]: Raise a dispute on a deal
+export async function disputeDeal(dealId, userId, reason) {
+    return fetchWithHeaders(`/api/deals/${dealId}/dispute`, {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, reason: reason })
+    });
+}
+

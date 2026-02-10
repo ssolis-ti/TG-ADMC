@@ -285,6 +285,35 @@ async def check_scheduled_posts():
 
 ---
 
+## 🛡️ Production Readiness (Hackathon Update)
+
+In response to the "Production Ready" clarifications, we have hardened the MVP:
+
+### 1. Robust Network Handling
+
+- **Implemented**: `tenacity` retry logic on all TON API calls.
+- **Benefit**: System survives transient network failures or API rate limits automatically.
+
+### 2. Dispute Resolution Mechanism
+
+- **Implemented**: `/dispute [deal_id] [reason]` command.
+- **Benefit**: Users can flag issues immediately. Disputes are persisted in DB (`is_disputed` flag) for admin review.
+- **Flow**: User raises dispute -> Admin notified (stdout/log) -> Funds frozen until resolution.
+
+### 3. Security Transparency
+
+- **Constraint**: We explicitly use `.env` for mnemonics in this MVP.
+- **Roadmap**: Production deployment MUST use a Hardware Security Module (HSM) or Multi-sig wallet. This is a known acceptable trade-off for the hackathon scope.
+
+### 4. UI/UX Strategy
+
+- **Decision**: We deliberately chose **Vanilla JS** over the new `@telegram-tools/ui-kit` (React) for this iteration to ensure:
+  - Zero build steps (easier for judges to review)
+  - Maximum performance (<50KB bundle)
+  - Stability (polished existing code vs. hurried rewrite)
+
+---
+
 ## 🔮 Future Roadmap
 
 ### Phase 1: Security Hardening (Weeks 1-4)

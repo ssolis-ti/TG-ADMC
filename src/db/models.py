@@ -112,6 +112,10 @@ class Deal(SQLModel, table=True):
     ad_brief: str = Field(description="Initial instructions from advertiser")
     ad_draft: Optional[str] = Field(default=None, description="Draft submitted by owner")
     rejection_reason: Optional[str] = None
+
+    # Dispute Resolution
+    is_disputed: bool = Field(default=False, description="Flag for raised disputes")
+    dispute_reason: Optional[str] = Field(default=None, description="Reason for dispute")
     
     scheduled_at: datetime = Field(nullable=True)
     published_at: Optional[datetime] = None

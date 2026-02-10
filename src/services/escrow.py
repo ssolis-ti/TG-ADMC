@@ -16,6 +16,8 @@ class EscrowService:
     
     Flow:
     CREATED -> ACCEPTED -> LOCKED (Funds Safe) -> SCHEDULED -> PUBLISHED -> COMPLETED
+                                                                              |
+    Any state can be flagged with is_disputed=True via raise_dispute()     [DISPUTED]
     """
     
     def __init__(self, session: AsyncSession):
@@ -134,9 +136,11 @@ class EscrowService:
         """
         [STEP 4 Alt] Request Revision
         ------------------------------
-        Advertiser wants changes.
+        Advertiser wants changes to the submitted draft.
         """
         deal = await self.session.get(Deal, deal_id)
+        if not deal:
+            raise ValueError("Deal not found")
         deal.rejection_reason = reason
         deal.status = DealStatus.REVISION_REQUESTED
         deal.updated_at = datetime.utcnow()
@@ -195,4 +199,29 @@ class EscrowService:
         
         await self.session.commit()
         self.logger.info(f"Deal Completed: ID={deal.id} | Funds Released", extra={"deal_id": deal.id, "status": "COMPLETED"})
+        return deal
+
+    async def raise_dispute(self, deal_id: int, reason: str) -> Deal:
+        """
+        [HARDENING] Raise Dispute
+        -------------------------
+        Flags a deal as disputed. Does NOT change the deal status.
+        This is an orthogonal flag: any deal in any state can be disputed.
+        
+        The dispute is logged at WARNING level for admin visibility.
+        In production: this would trigger an admin notification (email/Telegram).
+        """
+        deal = await self.session.get(Deal, deal_id)
+        if not deal:
+            raise ValueError("Deal not found")
+            
+        deal.is_disputed = True
+        deal.dispute_reason = reason
+        deal.updated_at = datetime.utcnow()
+        await self.session.commit()
+        
+        self.logger.warning(
+            f"🚨 DISPUTE RAISED: Deal ID={deal.id} | Reason={reason}",
+            extra={"deal_id": deal.id, "status": "DISPUTED"}
+        )
         return deal
